@@ -1,9 +1,12 @@
 import os
+import threading
 import tkinter as tk
-from random import randint, choice, randrange as rnd
+from tkinter.messagebox import askyesno
+from random import randint, choice
 import time
 
 from server_config import *
+from server_socket import SocketServer
 
 
 class Ball:
@@ -116,8 +119,6 @@ class Ball:
 class Racket1:
     def __init__(self, canvas, rx: int, ry: int, rack_length: int):
         self.canvas = canvas
-        # self.x = 300
-        # self.y = 300
         self.rx = rx
         self.ry = ry
         self.rx_last = rx
@@ -160,8 +161,8 @@ class GameField(tk.Canvas):
                                                 fill='blue')
         self.fence_right_bottom = self.create_line(WIDTH - 5, HEIGHT - (HEIGHT - GOAL_SIZE) // 2, WIDTH - 5, HEIGHT,
                                                    width=8, fill='blue')
-        self.racket_1 = Racket1(self, 200, 200, RACK_LENGTH)
-        self.racket_2 = Racket2(self, 700, 400, RACK_LENGTH)
+        self.racket_1 = Racket1(self, 100, 200, RACK_LENGTH)
+        self.racket_2 = Racket2(self, 700, 300, RACK_LENGTH)
         self.balls = []
 
     def restart(self):
@@ -196,7 +197,7 @@ class MainFrame(tk.Frame):
         self.score_2 = 0
         self.score_label = tk.Label(
             self,
-            text=(f'{self.score_1} : {self.score_2}'),
+            text=('Waiting for client to connect'),
             font=("Times New Roman", 12)
         )
         self.score_label.pack()
@@ -204,12 +205,28 @@ class MainFrame(tk.Frame):
         self.game_field.pack(fill=tk.BOTH, expand=1)
         self.interval = 0
         self.rand = randint(5, 30)
+        self.event_stop = threading.Event()
+        self.run = False
 
     def new_game(self):
         self.score_1 = 0
         self.score_2 = 0
-        self.score_label.config(text=f'{self.score_1} : {self.score_2}')
         self.game_field.restart()
+        self.t1 = threading.Thread(target=self.handle_client)
+        self.t1.start()
+
+    def handle_client(self):
+        self.server = SocketServer(HOST, PORT)
+        print(self.server.connection())
+        self.run = True
+        self.score_label.config(text=f'{self.score_1} : {self.score_2}')
+
+        while True:
+            if self.event_stop.is_set():
+                break
+
+            self.message = self.server.receive()
+            self.server.send('message')
 
     def game(self):
         self.interval += 0.1
@@ -226,8 +243,13 @@ class MainFrame(tk.Frame):
             self.score_label.config(text=f'{self.score_1} : {self.score_2}')
             if self.score_1 == LIMIT_SCORE or self.score_2 == LIMIT_SCORE:
                 print('game over')
-            # end_game()
+                self.run = False
+                self.score_label.config(text=f'Winner Player {1 if self.score_1 > self.score_2 else 2}  ---> Score {self.score_1}:{self.score_2}')
         self.game_field.racket_show()
+
+    def exit(self):
+        self.server.close()
+        self.event_stop.set()
 
 
 class Menu(tk.Menu):
@@ -240,7 +262,6 @@ class Menu(tk.Menu):
         self.file_menu.add_command(label="Save", command=self.master.save)
         self.file_menu.add_command(label="Load", command=self.master.load)
         self.add_cascade(label="File", menu=self.file_menu)
-
         self.game_menu = tk.Menu(self)
         self.game_menu.add_command(label="Pause", command=self.master.pause)
         self.game_menu.add_command(label="Start", command=self.master.start)
@@ -258,9 +279,13 @@ class GameApp(tk.Tk):
         self.main_frame.pack(fill=tk.BOTH, expand=1)
         self.menu = Menu(self.master, self)
         self.config(menu=self.menu)
-        self.run = True
-
+        self.protocol("WM_DELETE_WINDOW", self.dialog_box)
         self.bind("<Control-s>", self.stop)
+
+    def dialog_box(self):
+        if askyesno(title="Quit", message="Do you want to quit?"):
+            self.main_frame.exit()
+            self.destroy()
 
     def new_game(self):
         self.main_frame.new_game()
@@ -276,16 +301,17 @@ class GameApp(tk.Tk):
         pass
 
     def pause(self):
-        self.run = False
+        print('pause')
+        self.main_frame.run = False
 
     def start(self):
-        self.run = True
+        self.main_frame.run = True
 
     def stop(self, event):
         pass
 
     def tick(self):
-        if self.run:
+        if self.main_frame.run:
             app.game()
         app.after(30, self.tick)
 
