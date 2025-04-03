@@ -10,26 +10,22 @@ from server_socket import SocketServer
 
 
 class Ball:
-    def __init__(self, canvas, dx: int, dy: int, x: int, y: int):
+    def __init__(self, canvas, dx: int, dy: int, x: int, y: int, radius: int = BALL_RADIUS):
         self.canvas = canvas
         self.color = choice(['blue', 'green', 'red', 'brown', 'yellow'])
         self.x = x
         self.y = y
-        self.r = 10
+        self.r = radius
         self.z = 0
         self.dx = dx
         self.dy = dy
-        self.ball_id = canvas.create_oval(self.x - self.r, self.y - self.r,
-                                          self.x + self.r, self.y + self.r, fill=self.color
-                                          )
+        self.ball_id = canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=self.color)
         self.live_ball = time.time()
         self.t_t = time.time()
 
     def move_ball(self, racket_1, racket_2, balls: list) -> None:
-        if self.x < WIDTH / 2:
-            rx, ry, rx_last, rack_length = racket_1.rx, racket_1.ry, racket_1.rx_last, racket_1.rack_length
-        else:
-            rx, ry, rx_last, rack_length = racket_2.r2x, racket_2.r2y, racket_2.r2x_last, racket_2.rack_length
+        racket = racket_1 if self.x < WIDTH // 2 else racket_2
+        rx, ry, rx_last, rack_length = racket.rx, racket.ry, racket.rx_last, racket.rack_length
 
         if self.dx > 0:  # the ball moves to the right
             if rx <= rx_last:  # the racket moves to the left
@@ -85,8 +81,8 @@ class Ball:
                         self.dx = -self.dx
         if self.y + self.r - self.dy >= HEIGHT or self.y - self.r - self.dy <= 0:
             self.dy = -self.dy
-        self.x = round(self.x + self.dx)
-        self.y = round(self.y - self.dy)
+        self.x = int(self.x + self.dx)
+        self.y = int(self.y - self.dy)
         for rebound in balls:  # rebound_from_ball
             if rebound is not self:
                 if (rebound.x - self.r < self.x < rebound.x + self.r) and (
@@ -105,7 +101,7 @@ class Ball:
 
     def goal(self, racket_1, racket_2) -> int:
         if self.x + self.r >= WIDTH and (HEIGHT - GOAL_SIZE) / 2 < self.y < HEIGHT - (HEIGHT - GOAL_SIZE) / 2 and not (
-                racket_2.r2y <= self.y <= racket_2.r2y + racket_2.rack_length):
+                racket_2.ry <= self.y <= racket_2.ry + racket_2.rack_length):
             return 1
 
         elif self.x - self.r <= 0 and (HEIGHT - GOAL_SIZE) / 2 < self.y < HEIGHT - (HEIGHT - GOAL_SIZE) / 2 and not (
@@ -116,53 +112,33 @@ class Ball:
             return 0
 
 
-class Racket1:
-    def __init__(self, canvas, rx: int, ry: int, rack_length: int):
+class Racket:
+    def __init__(self, canvas, rx: int, ry: int, rack_length: int, color: str):
         self.canvas = canvas
         self.rx = rx
         self.ry = ry
         self.rx_last = rx
         self.rack_length = rack_length
-        self.racket_id = canvas.create_line(self.rx, self.ry, self.rx, self.ry + self.rack_length, fill='black',
-                                            width=5)
+        self.racket_id = canvas.create_line(rx, ry, rx, ry + rack_length, fill=color, width=5)
 
-    def show(self, event):
+    def show(self, event=None):
         self.rx_last = self.rx
         self.canvas.coords(self.racket_id, self.rx, self.ry, self.rx, self.ry + self.rack_length)
-        self.rx = event.x if event.x < 300 else 300
-        self.ry = event.y
-
-
-class Racket2:
-    def __init__(self, canvas, r2x: int, r2y: int, rack_length: int):
-        self.canvas = canvas
-        self.r2x = r2x
-        self.r2y = r2y
-        self.r2x_last = r2x
-        self.r2y_last = r2x
-        self.rack_length = rack_length
-        self.racket2_id = canvas.create_line(self.r2x, self.r2y, self.r2x, self.r2y + self.rack_length, fill='red',
-                                             width=5)
-
-    def show(self):
-        self.r2x_last = self.r2x
-        self.r2y_last = self.r2y
-        self.canvas.coords(self.racket2_id, self.r2x, self.r2y, self.r2x, self.r2y + self.rack_length)
+        if event:
+            self.rx = event.x if event.x < 300 else 300
+            self.ry = event.y
 
 
 class GameField(tk.Canvas):
     def __init__(self, master):
         super().__init__(master, background='yellow')
 
-        self.fence_left_top = self.create_line(5, 0, 5, (HEIGHT - GOAL_SIZE) // 2, width=8, fill='blue')
-        self.fence_left_bottom = self.create_line(5, HEIGHT - (HEIGHT - GOAL_SIZE) // 2, 5, HEIGHT, width=8,
-                                                  fill='blue')
-        self.fence_right_top = self.create_line(WIDTH - 5, 0, WIDTH - 5, (HEIGHT - GOAL_SIZE) // 2, width=8,
-                                                fill='blue')
-        self.fence_right_bottom = self.create_line(WIDTH - 5, HEIGHT - (HEIGHT - GOAL_SIZE) // 2, WIDTH - 5, HEIGHT,
-                                                   width=8, fill='blue')
-        self.racket_1 = Racket1(self, 100, 200, RACK_LENGTH)
-        self.racket_2 = Racket2(self, 700, 300, RACK_LENGTH)
+        self.create_line(5, 0, 5, (HEIGHT - GOAL_SIZE) // 2, width=8, fill='blue')
+        self.create_line(5, HEIGHT - (HEIGHT - GOAL_SIZE) // 2, 5, HEIGHT, width=8, fill='blue')
+        self.create_line(WIDTH - 5, 0, WIDTH - 5, (HEIGHT - GOAL_SIZE) // 2, width=8, fill='blue')
+        self.create_line(WIDTH - 5, HEIGHT - (HEIGHT - GOAL_SIZE) // 2, WIDTH - 5, HEIGHT, width=8, fill='blue')
+        self.racket_1 = Racket(self, 100, 200, RACKET_LENGTH, 'black')
+        self.racket_2 = Racket(self, 700, 300, RACKET_LENGTH, 'red')
         self.balls = []
 
     def restart(self):
@@ -171,7 +147,7 @@ class GameField(tk.Canvas):
     def add_ball(self):
         dx = randint(-10, 10) * 4
         dy = randint(-10, 10)
-        self.balls.append(Ball(self, dx, dy, WIDTH / 2, HEIGHT / 2))
+        self.balls.append(Ball(self, dx, dy, WIDTH // 2, HEIGHT // 2))
 
     def balls_move(self) -> int:
         self.goal = 0
@@ -185,8 +161,13 @@ class GameField(tk.Canvas):
                 return self.goal
         return 0
 
-    def racket_show(self):
+    def new_coord_rack_2(self, x: str, y: str):
+        self.racket_2.rx = int(x)
+        self.racket_2.ry = int(y)
+
+    def rackets_show(self):
         self.bind('<Motion>', self.racket_1.show)
+        self.racket_2.show()
 
 
 class MainFrame(tk.Frame):
@@ -197,7 +178,7 @@ class MainFrame(tk.Frame):
         self.score_2 = 0
         self.score_label = tk.Label(
             self,
-            text=('Waiting for client to connect'),
+            text='Waiting for client to connect',
             font=("Times New Roman", 12)
         )
         self.score_label.pack()
@@ -212,8 +193,8 @@ class MainFrame(tk.Frame):
         self.score_1 = 0
         self.score_2 = 0
         self.game_field.restart()
-        self.t1 = threading.Thread(target=self.handle_client)
-        self.t1.start()
+        t1 = threading.Thread(target=self.handle_client)
+        t1.start()
 
     def handle_client(self):
         self.server = SocketServer(HOST, PORT)
@@ -225,8 +206,10 @@ class MainFrame(tk.Frame):
             if self.event_stop.is_set():
                 break
 
-            self.message = self.server.receive()
-            self.server.send('message')
+            self.game_field.racket_2.rx, self.game_field.racket_2.ry = map(int, self.server.receive().split('/'))
+            balls_coord = [(ball.color, ball.x, ball.y) for ball in self.game_field.balls]
+            self.server.send(
+                f'{str(self.game_field.racket_1.rx)}/{str(self.game_field.racket_1.ry)}:{str(balls_coord)}')
 
     def game(self):
         self.interval += 0.1
@@ -244,8 +227,9 @@ class MainFrame(tk.Frame):
             if self.score_1 == LIMIT_SCORE or self.score_2 == LIMIT_SCORE:
                 print('game over')
                 self.run = False
-                self.score_label.config(text=f'Winner Player {1 if self.score_1 > self.score_2 else 2}  ---> Score {self.score_1}:{self.score_2}')
-        self.game_field.racket_show()
+                self.score_label.config(
+                    text=f'Winner Player {1 if self.score_1 > self.score_2 else 2}  ---> Score {self.score_1}:{self.score_2}')
+        self.game_field.rackets_show()
 
     def exit(self):
         self.server.close()
@@ -291,9 +275,6 @@ class GameApp(tk.Tk):
         self.main_frame.new_game()
         print('new game')
 
-    def game(self):
-        self.main_frame.game()
-
     def save(self):
         pass
 
@@ -312,8 +293,8 @@ class GameApp(tk.Tk):
 
     def tick(self):
         if self.main_frame.run:
-            app.game()
-        app.after(30, self.tick)
+            self.main_frame.game()
+        self.after(30, self.tick)
 
 
 if __name__ == '__main__':
