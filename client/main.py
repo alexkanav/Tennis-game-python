@@ -40,7 +40,7 @@ class GameField(tk.Canvas):
         self.racket_1.show()
         self.racket_2.show()
 
-    def show_balls(self, balls: list[tuple]):
+    def show_balls(self, balls: list[tuple[str, int, int]]):
         for ball in self.balls_on_the_field:
             self.delete(ball)
         self.balls_on_the_field.clear()
@@ -77,7 +77,7 @@ class MainFrame(tk.Frame):
         while self.game_running:
             try:
                 self.conn.connect()
-                self.score_label.config(text=f'{self.score_1} : {self.score_2}')
+                self.score_label.config(text='0 : 0')
                 self.connected = True
                 break
             except Exception as e:
@@ -90,10 +90,15 @@ class MainFrame(tk.Frame):
         if self.connected:
             self.game_field.bind('<Motion>', self.game_field.racket_1.move)
             self.conn.send(f'{str(self.game_field.racket_1.x)}/{str(self.game_field.racket_1.y)}')
-            rack_coord, balls_coord = self.conn.receive().split(':')
-            self.game_field.racket_2.x, self.game_field.racket_2.y = map(int, rack_coord.split('/'))
-            self.game_field.show_rackets()
-            self.game_field.show_balls(eval(balls_coord))
+            received_data = self.conn.receive()
+            if received_data[0] == 'g':
+                score = received_data[1:].split(':')
+                self.score_label.config(text=f'{score[0]} : {score[1]}')
+            else:
+                rack_coord, balls_coord = received_data.split(':')
+                self.game_field.racket_2.x, self.game_field.racket_2.y = map(int, rack_coord.split('/'))
+                self.game_field.show_rackets()
+                self.game_field.show_balls(eval(balls_coord))
 
     def close_connection(self):
         self.conn.close()

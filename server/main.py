@@ -150,16 +150,15 @@ class GameField(tk.Canvas):
         self.balls.append(Ball(self, dx, dy, WIDTH // 2, HEIGHT // 2))
 
     def balls_move(self) -> int:
-        self.goal = 0
+        goal = 0
         for ball in self.balls:
             ball.move_ball(self.racket_1, self.racket_2, self.balls)
             ball.show_ball()
-            self.goal = ball.goal(self.racket_1, self.racket_2)
-            if time.time() - ball.live_ball > 10 or self.goal:
+            goal = ball.goal(self.racket_1, self.racket_2)
+            if time.time() - ball.live_ball > 10 or goal:
                 self.delete(ball.ball_id)
                 self.balls.remove(ball)
-                return self.goal
-        return 0
+        return goal
 
     def new_coord_rack_2(self, x: str, y: str):
         self.racket_2.rx = int(x)
@@ -176,6 +175,7 @@ class MainFrame(tk.Frame):
 
         self.score_1 = 0
         self.score_2 = 0
+        self.goal = False
         self.score_label = tk.Label(
             self,
             text='Waiting for client to connect',
@@ -207,9 +207,13 @@ class MainFrame(tk.Frame):
                 break
 
             self.game_field.racket_2.rx, self.game_field.racket_2.ry = map(int, self.server.receive().split('/'))
-            balls_coord = [(ball.color, ball.x, ball.y) for ball in self.game_field.balls]
-            self.server.send(
-                f'{str(self.game_field.racket_1.rx)}/{str(self.game_field.racket_1.ry)}:{str(balls_coord)}')
+            if self.goal:
+                self.server.send(f'g{self.score_1}:{self.score_2}')
+                self.goal = False
+            else:
+                balls_coord = [(ball.color, ball.x, ball.y) for ball in self.game_field.balls]
+                self.server.send(
+                    f'{str(self.game_field.racket_1.rx)}/{str(self.game_field.racket_1.ry)}:{str(balls_coord)}')
 
     def game(self):
         self.interval += 0.1
@@ -224,6 +228,10 @@ class MainFrame(tk.Frame):
                 case 2:
                     self.score_2 += 1
             self.score_label.config(text=f'{self.score_1} : {self.score_2}')
+            self.goal = True
+            time.sleep(1)
+
+
             if self.score_1 == LIMIT_SCORE or self.score_2 == LIMIT_SCORE:
                 print('game over')
                 self.run = False
