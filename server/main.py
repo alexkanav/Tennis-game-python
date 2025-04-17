@@ -141,9 +141,6 @@ class GameField(tk.Canvas):
         self.racket_2 = Racket(self, 700, 300, RACKET_LENGTH, 'red')
         self.balls = []
 
-    def restart(self):
-        self.add_ball()
-
     def add_ball(self):
         dx = randint(-10, 10) * 4
         dy = randint(-10, 10)
@@ -185,19 +182,25 @@ class MainFrame(tk.Frame):
         self.game_field = GameField(self)
         self.game_field.pack(fill=tk.BOTH, expand=1)
         self.interval = 0
-        self.rand = randint(5, 30)
+        self.rand = randint(2, 30)
         self.event_stop = threading.Event()
         self.run = False
+        self.new_score = True
+        self.server = SocketServer(HOST, PORT)
 
     def new_game(self):
         self.score_1 = 0
         self.score_2 = 0
-        self.game_field.restart()
-        t1 = threading.Thread(target=self.handle_client)
-        t1.start()
+        self.new_score = True
+        self.score_label.config(text=f'{self.score_1} : {self.score_2}')
+        for ball in self.game_field.balls:
+            self.game_field.delete(ball.ball_id)
+            self.game_field.balls.remove(ball)
+        if threading.active_count() == 1:
+            t1 = threading.Thread(target=self.handle_client)
+            t1.start()
 
     def handle_client(self):
-        self.server = SocketServer(HOST, PORT)
         print(self.server.connection())
         self.run = True
         self.score_label.config(text=f'{self.score_1} : {self.score_2}')
@@ -210,6 +213,9 @@ class MainFrame(tk.Frame):
             if self.goal:
                 self.server.send(f'g{self.score_1}:{self.score_2}')
                 self.goal = False
+            elif self.new_score:
+                self.server.send(f'g{self.score_1}:{self.score_2}')
+                self.new_score = False
             else:
                 balls_coord = [(ball.color, ball.x, ball.y) for ball in self.game_field.balls]
                 self.server.send(
@@ -230,8 +236,6 @@ class MainFrame(tk.Frame):
             self.score_label.config(text=f'{self.score_1} : {self.score_2}')
             self.goal = True
             time.sleep(1)
-
-
             if self.score_1 == LIMIT_SCORE or self.score_2 == LIMIT_SCORE:
                 print('game over')
                 self.run = False
