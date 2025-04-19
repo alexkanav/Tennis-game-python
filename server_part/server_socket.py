@@ -1,7 +1,7 @@
 import socket
 
 
-class SocketServer:
+class ServerSocket:
     def __init__(self, host: str, port: int, num_conns: int = 1):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((host, port))
