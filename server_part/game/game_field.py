@@ -29,7 +29,7 @@ class GameField(tk.Canvas):
         for ball in self.balls:
             ball.move_ball(self.racket_1, self.racket_2, self.balls)
             ball.show_ball()
-            goal = ball.goal(self.racket_1, self.racket_2)
+            goal = ball.goal()
             if time() - ball.live_ball > 10 or goal:
                 self.delete(ball.ball_id)
                 self.balls.remove(ball)
