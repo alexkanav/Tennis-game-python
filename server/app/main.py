@@ -2,22 +2,22 @@ import threading
 from random import randint
 import time
 
-from server_part import tk
-from server_part.game.game_field import GameField
-from server_part.server_socket import ServerSocket
-from server_part.config import HOST, PORT, LIMIT_SCORE
+from server import tk
+from server.game.game_field import GameField
+from server.server_socket import ServerSocket
+from server.config import HOST, PORT, LIMIT_SCORE
 
 
 class MainFrame(tk.Frame):
     def __init__(self, master):
-        super().__init__(master, bg='brown')
+        super().__init__(master, bg='#9a7654')
 
         self.score_1 = 0
         self.score_2 = 0
         self.goal = False
         self.score_label = tk.Label(
             self,
-            text='Waiting for client_part to connect',
+            text='Waiting for client to connect',
             font=("Times New Roman", 12)
         )
         self.score_label.pack()

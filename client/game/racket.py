@@ -1,4 +1,4 @@
-from client_part.config import RACKET_LENGTH
+from client.config import RACKET_LENGTH
 
 
 class Racket:

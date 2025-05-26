@@ -1,16 +1,16 @@
 import os
 from tkinter.messagebox import askyesno
 
-from server_part import tk
+from server import tk
 from .main import MainFrame
 from .menu import Menu
-from server_part.config import WIDTH, HEIGHT
+from server.config import WIDTH, HEIGHT
 
 
 class GameApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.iconbitmap('assets/racket.ico')
+        self.iconbitmap('server/assets/racket.ico')
         self.geometry(f'{str(WIDTH)}x{str(HEIGHT + 40)}')
         self.save_dir = os.path.join(os.path.split(__file__)[0], 'save')
         self.main_frame = MainFrame(self.master)

@@ -1,5 +1,5 @@
-from client_part import tk
-from client_part.config import HEIGHT, WIDTH, GOAL_SIZE, BALL_RADIUS
+from client import tk
+from client.config import HEIGHT, WIDTH, GOAL_SIZE, BALL_RADIUS
 from .racket import Racket
 
 

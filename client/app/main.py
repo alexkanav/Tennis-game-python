@@ -1,15 +1,15 @@
 import threading
 import time
 
-from client_part import tk
-from client_part.game.game_field import GameField
-from client_part.client_socket import ClientSocket
-from client_part.config import HOST, PORT
+from client import tk
+from client.game.game_field import GameField
+from client.client_socket import ClientSocket
+from client.config import HOST, PORT
 
 
 class MainFrame(tk.Frame):
     def __init__(self, master):
-        super().__init__(master, bg='brown')
+        super().__init__(master, bg='#9a7654')
 
         self.score_1 = 0
         self.score_2 = 0

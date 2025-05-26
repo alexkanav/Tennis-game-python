@@ -1,7 +1,7 @@
 from random import choice
 from time import time
 
-from server_part.config import WIDTH, HEIGHT, GOAL_SIZE, BALL_RADIUS
+from server.config import WIDTH, HEIGHT, GOAL_SIZE, BALL_RADIUS
 
 
 class Ball:

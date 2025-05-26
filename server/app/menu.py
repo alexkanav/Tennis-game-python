@@ -1,4 +1,4 @@
-from server_part import tk
+from server import tk
 
 
 class Menu(tk.Menu):

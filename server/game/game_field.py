@@ -1,10 +1,10 @@
 from random import randint
 from time import time
 
-from server_part import tk
-from server_part.game.racket import Racket
-from server_part.game.ball import Ball
-from server_part.config import WIDTH, HEIGHT, GOAL_SIZE, RACKET_LENGTH
+from server import tk
+from server.game.racket import Racket
+from server.game.ball import Ball
+from server.config import WIDTH, HEIGHT, GOAL_SIZE, RACKET_LENGTH
 
 
 class GameField(tk.Canvas):

@@ -1,15 +1,15 @@
 from tkinter.messagebox import askyesno
 
-from client_part import tk
+from client import tk
 from .main import MainFrame
-from client_part.config import WIDTH, HEIGHT
+from client.config import WIDTH, HEIGHT
 
 
 class GameApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('Tennis')
-        self.iconbitmap('assets/racket.ico')
+        self.iconbitmap('client/assets/racket.ico')
         self.geometry(f'{str(WIDTH)}x{str(HEIGHT + 20)}')
         self.main_frame = MainFrame(self.master)
         self.main_frame.pack(fill=tk.BOTH, expand=1)
