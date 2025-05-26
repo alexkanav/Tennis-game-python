@@ -25,16 +25,13 @@ Tested on **Python 3.9+**.
 
 ## 🚀 Getting Started
 ### 1. Clone the repository
-
-    ```bash
     git clone https://github.com/alexkanav/Tennis-game-python
+    cd Tennis-game-python
 
 ### 2. Start the server
-    ```bash
     python -m server.run
 
 ### 3. Start the client(s)
-    ```bash
     python -m client.run
 
 Make sure both the server and clients are on the same network or adjust IP addresses in the code accordingly.
@@ -50,8 +47,7 @@ The game starts automatically when both players are connected.
 ## 📸 Screenshots
 ![Screenshot](screenshot.jpg)
 
----
 
-## 📖 License
+📖 License
 This project is open source. Use it freely, or modify it for your needs.
 
