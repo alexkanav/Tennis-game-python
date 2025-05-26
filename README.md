@@ -47,7 +47,8 @@ The game starts automatically when both players are connected.
 ## 📸 Screenshots
 ![Screenshot](screenshot.jpg)
 
+---
 
-📖 License
+## 📖 License
 This project is open source. Use it freely, or modify it for your needs.
 
