@@ -1,7 +1,7 @@
 from random import randint
 from time import time
+import tkinter as tk
 
-from server import tk
 from server.game.racket import Racket
 from server.game.ball import Ball
 from server.config import WIDTH, HEIGHT, GOAL_SIZE, RACKET_LENGTH

@@ -1,7 +1,7 @@
 import threading
 import time
 
-from client import tk
+import tkinter as tk
 from client.game.game_field import GameField
 from client.client_socket import ClientSocket
 from client.config import HOST, PORT

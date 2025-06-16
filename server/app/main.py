@@ -2,7 +2,7 @@ import threading
 from random import randint
 import time
 
-from server import tk
+import tkinter as tk
 from server.game.game_field import GameField
 from server.server_socket import ServerSocket
 from server.config import HOST, PORT, LIMIT_SCORE

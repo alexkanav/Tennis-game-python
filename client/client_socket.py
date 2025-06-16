@@ -7,7 +7,6 @@ class ClientSocket:
         self.port = port
         self.sock = socket.socket()
 
-
     def connect(self):
         self.sock.connect((self.host, self.port))
 

@@ -1,2 +1,1 @@
-from .ui import GameApp
 

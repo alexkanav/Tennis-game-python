@@ -1,4 +1,4 @@
-from client import tk
+import tkinter as tk
 from client.config import HEIGHT, WIDTH, GOAL_SIZE, BALL_RADIUS
 from .racket import Racket
 

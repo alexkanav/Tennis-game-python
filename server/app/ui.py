@@ -1,7 +1,7 @@
 import os
 from tkinter.messagebox import askyesno
+import tkinter as tk
 
-from server import tk
 from .main import MainFrame
 from .menu import Menu
 from server.config import WIDTH, HEIGHT

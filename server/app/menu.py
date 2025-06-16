@@ -1,4 +1,4 @@
-from server import tk
+import tkinter as tk
 
 
 class Menu(tk.Menu):

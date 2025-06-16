@@ -1,6 +1,6 @@
 from tkinter.messagebox import askyesno
+import tkinter as tk
 
-from client import tk
 from .main import MainFrame
 from client.config import WIDTH, HEIGHT
 
