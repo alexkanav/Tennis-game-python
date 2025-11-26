@@ -1,7 +1,6 @@
 # 🏓 Tkinter Tennis Game (Client-Server)
 
-A simple 2-player tennis game built with **Python's Tkinter** and **socket programming**. The game uses a client-server model to enable multiplayer gameplay over a network.
-
+A lightweight 2-player tennis game built with **Tkinter** and **socket programming**. showcasing real-time multiplayer gameplay implemented solely with Python’s standard library. The client–server architecture cleanly separates rendering and game logic from networking, making the codebase easy to maintain and extend.
 ---
 
 ## 🖥️ Requirements
@@ -16,7 +15,8 @@ Tested on **Python 3.9+**.
 ## 🎮 Features
 
 - GUI-based gameplay using **Tkinter**
-- Real-time 2-player mode over LAN/internet
+- Real-time multiplayer over LAN/internet
+- Client–Server architecture for synchronized game state
 - Smooth paddle and ball animation
 - Ball movement simulates the **effect of gravity**
 - Simple yet engaging game mechanics
